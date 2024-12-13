@@ -1,0 +1,230 @@
+/* General Styles */
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.category-container {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;  /* Allow items to wrap on smaller screens */
+}
+
+.category {
+    display: flex;
+    align-items: center;
+    flex: 1 1 200px; /* Make the category items responsive */
+}
+
+.category label {
+    margin-left: 8px;
+    font-size: 16px;
+    color: #333;
+}
+
+.category input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+#popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    border-radius: 5px;
+    z-index: 1000;
+}
+#popup h3 {
+    margin: 0;
+}
+#popup p {
+    margin: 10px 0 0;
+}
+
+#logo {
+    height: 100px;
+}
+
+#ticket-form {
+    background-color: #fff;
+    padding: 20px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    box-sizing: border-box;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Label and Input Fields */
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #555;
+}
+
+input[type="text"],
+input[type="email"],
+textarea,
+select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+#button {
+    width: 100%;
+    padding: 10px;
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+/* Light Mode Styles */
+body.light-mode {
+    background-color: #fff;
+    color: #333;
+}
+
+body.light-mode #ticket-form {
+    background-color: #fff;
+}
+
+body.light-mode #popup {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+body.light-mode #button {
+    background-color: #4CAF50;
+}
+
+body.light-mode #button:hover {
+    background-color: #45a049;
+}
+
+/* Dark Mode Styles */
+body.dark-mode {
+    background-color: #121212;
+    color: #fff;
+}
+
+body.dark-mode #ticket-form {
+    background-color: #333;
+}
+
+body.dark-mode #popup {
+    background-color: #444;
+    color: #ddd;
+}
+
+body.dark-mode #button {
+    background-color: #4CAF50;
+}
+
+body.dark-mode #button:hover {
+    background-color: #45a049;
+}
+
+/* Media Queries for Responsiveness */
+
+/* For small screens (e.g., mobile phones) */
+@media (max-width: 768px) {
+    .category-container {
+        flex-direction: column; /* Stack categories vertically */
+        align-items: flex-start;
+    }
+
+    .category {
+        margin-bottom: 15px; /* Add space between category items */
+    }
+
+    #ticket-form {
+        margin-left: 0;
+        margin-right: 0;
+        max-width: 100%; /* Allow ticket form to take full width */
+    }
+
+    #popup {
+        width: 90%; /* Make the popup modal width smaller on mobile */
+    }
+
+    h1 {
+        font-size: 20px; /* Adjust heading font size */
+    }
+
+    #logo {
+        height: 80px; /* Reduce logo size on smaller screens */
+    }
+
+    input[type="text"],
+    input[type="email"],
+    select {
+        font-size: 12px; /* Adjust input field font size for smaller screens */
+    }
+
+    textarea {
+        font-size: 12px; /* Adjust textarea font size */
+    }
+
+    #button {
+        font-size: 14px; /* Adjust button font size */
+    }
+}
+
+/* For medium screens (e.g., tablets) */
+@media (max-width: 1024px) {
+    .category-container {
+        flex-wrap: wrap;
+    }
+
+    .category {
+        flex: 1 1 45%; /* Two items per row on medium screens */
+    }
+
+    #ticket-form {
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 90%; /* Slightly reduced width on medium screens */
+    }
+}
+
+/* For larger screens (e.g., desktops) */
+@media (min-width: 1025px) {
+    .category-container {
+        flex-wrap: nowrap; /* Prevent items from wrapping on large screens */
+    }
+
+    .category {
+        flex: 1 1 200px; /* Allow more space for categories */
+    }
+}
