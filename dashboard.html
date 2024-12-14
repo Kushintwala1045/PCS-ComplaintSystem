@@ -4,9 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100">
+     
+    
     <div class="container mx-auto my-8">
         <h1 class="text-3xl font-bold text-center mb-6">Admin Dashboard</h1>
 
@@ -38,7 +41,6 @@
 
         <!-- Tickets Table -->
         <div class="overflow-x-auto bg-white rounded shadow-lg">
-            
             <table class="min-w-full border-collapse border border-gray-200 rounded-lg shadow-md">
                 <thead class="bg-gray-100">
                     <tr>
@@ -53,8 +55,7 @@
                         <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600 border-b">Created At</th>
                         <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600 border-b">Status</th>
                         <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600 border-b">Actions</th>
-                      </tr>
-                    
+                    </tr>
                 </thead>
                 <tbody id="tickets-body" class="divide-y divide-gray-200">
                     <!-- Tickets will be dynamically loaded here -->
@@ -73,150 +74,338 @@
     </div>
     
     <script>
+        function logout() {
+            // Redirect to the logout page or handle logout logic
+            window.location.href = 'logout.php';
+        }
+
+        // Fetch and render tickets logic
+        fetchTickets();
         let tickets = []; // Store tickets data globally
 
-        // Fetch tickets from the database
-        function fetchTickets() {
-            fetch('fetch_tickets.php')
-                .then(response => response.json())
-                .then(data => {
-                    tickets = data;
-                    renderTickets(tickets);
-                })
-                .catch(error => console.error('Error fetching tickets:', error));
-        }
+// Fetch tickets from the database
+function fetchTickets() {
+    fetch('fetch_tickets.php')
+        .then(response => response.json())
+        .then(data => {
+            tickets = data;
+            renderTickets(tickets);
+        })
+        .catch(error => console.error('Error fetching tickets:', error));
+}
 
-        // Render tickets in the table
-        function renderTickets(data) {
-    const ticketsBody = document.getElementById('tickets-body');
-    ticketsBody.innerHTML = ''; // Clear existing rows
+// Render tickets in the table
+function renderTickets(data) {
+const ticketsBody = document.getElementById('tickets-body');
+ticketsBody.innerHTML = ''; // Clear existing rows
 
-    if (data.length === 0) {
-        ticketsBody.innerHTML = '<tr><td colspan="11" class="px-4 py-2 text-center text-gray-500">No tickets found</td></tr>';
-        return;
-    }
+if (data.length === 0) {
+ticketsBody.innerHTML = '<tr><td colspan="11" class="px-4 py-2 text-center text-gray-500">No tickets found</td></tr>';
+return;
+}
 
-    data.forEach(ticket => {
-        const row = `
-            <tr>
-                <td class="px-4 py-2">${ticket.id}</td>
-                <td class="px-4 py-2">${ticket.ticket_number}</td>
-                <td class="px-4 py-2">${ticket.customer_email}</td>
-                <td class="px-4 py-2">${ticket.customer_name}</td>
-                <td class="px-4 py-2">${ticket.phone_number || 'N/A'}</td>
-                <td class="px-4 py-2">${ticket.complaint_description}</td>
-                <td class="px-4 py-2">${ticket.priority}</td>
-                <td class="px-4 py-2">${ticket.category}</td>
-                <td class="px-4 py-2">${ticket.created_at}</td>
-                <td class="px-4 py-2">
-                    <span class="px-2 py-1 text-sm rounded ${ticket.status === 'Open' ? 'bg-green-200 text-green-700' : 'bg-red-200 text-red-700'}">${ticket.status}</span>
-                </td>
-                <td class="px-4 py-2">
-                    <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onclick="toggleStatus(${ticket.id}, '${ticket.status}')">
-                        ${ticket.status === 'Open' ? 'Close' : 'Open'}
-                    </button>
-                    <button class="bg-gray-500 text-white px-50 py-2 rounded hover:bg-gray-600 ml-2" onclick="viewTicketDetails(${ticket.id})">
-                        View Details
-                    </button>
-                </td>
-            </tr>
-        `;
-        ticketsBody.innerHTML += row;
-    });
+data.forEach(ticket => {
+const row = `
+    <tr>
+        <td class="px-4 py-2">${ticket.id}</td>
+        <td class="px-4 py-2">${ticket.ticket_number}</td>
+        <td class="px-4 py-2">${ticket.customer_email}</td>
+        <td class="px-4 py-2">${ticket.customer_name}</td>
+        <td class="px-4 py-2">${ticket.phone_number || 'N/A'}</td>
+        <td class="px-4 py-2">${ticket.complaint_description}</td>
+        <td class="px-4 py-2">${ticket.priority}</td>
+        <td class="px-4 py-2">${ticket.category}</td>
+        <td class="px-4 py-2">${ticket.created_at}</td>
+        <td class="px-4 py-2">
+            <span class="px-2 py-1 text-sm rounded ${ticket.status === 'Open' ? 'bg-green-200 text-green-700' : 'bg-red-200 text-red-700'}">${ticket.status}</span>
+        </td>
+        <td class="px-4 py-2">
+            <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onclick="toggleStatus(${ticket.id}, '${ticket.status}')">
+                ${ticket.status === 'Open' ? 'Close' : 'Open'}
+            </button>
+            <button class="bg-gray-500 text-white px-50 py-2 rounded hover:bg-gray-600 ml-2" onclick="viewTicketDetails(${ticket.id})">
+                View Details
+            </button>
+        </td>
+    </tr>
+`;
+ticketsBody.innerHTML += row;
+});
 }
 
 
-        // Apply filters to tickets
-        function applyFilters() {
-    const ticketNumber = document.getElementById('filter-ticket-number').value.trim();
-    const priority = document.getElementById('filter-priority').value;
-    const status = document.getElementById('filter-status').value;
-    const category = document.getElementById('filter-category').value.trim(); // Ensure trimming
-    const date = document.getElementById('filter-date').value;
+// Apply filters to tickets
+function applyFilters() {
+const ticketNumber = document.getElementById('filter-ticket-number').value.trim();
+const priority = document.getElementById('filter-priority').value;
+const status = document.getElementById('filter-status').value;
+const category = document.getElementById('filter-category').value.trim(); // Ensure trimming
+const date = document.getElementById('filter-date').value;
 
-    console.log("Applying Filters:");
-    console.log("Ticket Number:", ticketNumber);
-    console.log("Priority:", priority);
-    console.log("Status:", status);
-    console.log("Category:", category);
-    console.log("Date:", date);
+console.log("Applying Filters:");
+console.log("Ticket Number:", ticketNumber);
+console.log("Priority:", priority);
+console.log("Status:", status);
+console.log("Category:", category);
+console.log("Date:", date);
 
-    const filteredTickets = tickets.filter(ticket => {
-        return (
-            (!ticketNumber || ticket.ticket_number.includes(ticketNumber)) &&
-            (!priority || ticket.priority === priority) &&
-            (!status || ticket.status === status) &&
-            (!category || ticket.category.trim().toLowerCase() === category.toLowerCase()) && // Trim and case-insensitive check
-            (!date || ticket.created_at.startsWith(date))
-        );
-    });
+const filteredTickets = tickets.filter(ticket => {
+return (
+    (!ticketNumber || ticket.ticket_number.includes(ticketNumber)) &&
+    (!priority || ticket.priority === priority) &&
+    (!status || ticket.status === status) &&
+    (!category || ticket.category.trim().toLowerCase() === category.toLowerCase()) && // Trim and case-insensitive check
+    (!date || ticket.created_at.startsWith(date))
+);
+});
 
-    renderTickets(filteredTickets);
+renderTickets(filteredTickets);
 }
 
 
-        function toggleStatus(ticketId, currentStatus) {
-    const newStatus = currentStatus === 'Open' ? 'Closed' : 'Open';
+function toggleStatus(ticketId, currentStatus) {
+const newStatus = currentStatus === 'Open' ? 'Closed' : 'Open';
 
-    fetch('fetch_tickets.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `ticket_id=${ticketId}&status=${newStatus}`,
-    })
-    .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Update the status in tickets data
-                        const ticket = tickets.find(t => t.id === ticketId);
-                        if (ticket) ticket.status = newStatus;
+fetch('fetch_tickets.php', {
+method: 'POST',
+headers: {
+    'Content-Type': 'application/x-www-form-urlencoded',
+},
+body: `ticket_id=${ticketId}&status=${newStatus}`,
+})
+.then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update the status in tickets data
+                const ticket = tickets.find(t => t.id === ticketId);
+                if (ticket) ticket.status = newStatus;
 
-                        // Reapply filters to refresh the table
-                        applyFilters();
-                    } else {
-                        alert(data.message);
-                    }
-                })
-                .catch(error => console.error('Error updating status:', error));
-        }
+                // Reapply filters to refresh the table
+                applyFilters();
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => console.error('Error updating status:', error));
+}
 
 
-        // Function to view ticket details in a modal
-        function viewTicketDetails(ticketId) {
-            fetch(`fetch_tickets.php?ticket_id=${ticketId}`)
-                .then(response => response.json())
-                .then(ticket => {
-                    if (ticket) {
-                        const detailsContent = `
-                            <p><strong>Ticket Number:</strong> ${ticket.ticket_number}</p>
-                            <p><strong>Customer Name:</strong> ${ticket.customer_name}</p>
-                            <p><strong>Customer Email:</strong> ${ticket.customer_email}</p>
-                            <p><strong>Phone Number:</strong> ${ticket.phone_number}</p>
-                            <p><strong>Complaint Description:</strong> ${ticket.complaint_description}</p>
-                            <p><strong>Priority:</strong> ${ticket.priority}</p>
-                            <p><strong>Category:</strong> ${ticket.category}</p>
-                            <p><strong>Status:</strong> ${ticket.status}</p>
-                            <p><strong>Created At:</strong> ${ticket.created_at}</p>
-                        `;
-                        document.getElementById('ticket-details-content').innerHTML = detailsContent;
-                        document.getElementById('ticket-details-modal').classList.remove('hidden');
-                    }
-                })
-                .catch(error => console.error('Error fetching ticket details:', error));
-        }
+// Function to view ticket details in a modal
+function viewTicketDetails(ticketId) {
+    fetch(`fetch_tickets.php?ticket_id=${ticketId}`)
+        .then(response => response.json())
+        .then(ticket => {
+            if (ticket) {
+                const detailsContent = `
+                    <p><strong>Ticket Number:</strong> ${ticket.ticket_number}</p>
+                    <p><strong>Customer Name:</strong> ${ticket.customer_name}</p>
+                    <p><strong>Customer Email:</strong> ${ticket.customer_email}</p>
+                    <p><strong>Phone Number:</strong> ${ticket.phone_number}</p>
+                    <p><strong>Complaint Description:</strong> ${ticket.complaint_description}</p>
+                    <p><strong>Priority:</strong> ${ticket.priority}</p>
+                    <p><strong>Category:</strong> ${ticket.category}</p>
+                    <p><strong>Status:</strong> ${ticket.status}</p>
+                    <p><strong>Created At:</strong> ${ticket.created_at}</p>
+                `;
+                document.getElementById('ticket-details-content').innerHTML = detailsContent;
+                document.getElementById('ticket-details-modal').classList.remove('hidden');
+            }
+        })
+        .catch(error => console.error('Error fetching ticket details:', error));
+}
 
-        // Function to close the modal
-        function closeModal() {
-            document.getElementById('ticket-details-modal').classList.add('hidden');
-        }
-        // Reload the page every 5 seconds (5000 milliseconds)
+// Function to close the modal
+function closeModal() {
+    document.getElementById('ticket-details-modal').classList.add('hidden');
+}
+// Reload the page every 5 seconds (5000 milliseconds)
 setInterval(function() {
-    location.reload();
-}, 10000);
+location.reload();
+}, 100000);
 
-        // Initial fetch of tickets
-        fetchTickets();
-    </script>
+// Initial fetch of tickets
+fetchTickets();
+</script>
+
+
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+       
