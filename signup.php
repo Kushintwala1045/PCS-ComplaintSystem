@@ -5,8 +5,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = $_POST['name'];
     $email = $_POST['email'];
     $password = $_POST['password'];
+    $company_name=$_POST['company_name'];
+    $phone_no=$_POST['phone_no'];
 
-    $sql = "INSERT INTO users (name, email, password, role) VALUES ('$name', '$email', '$password', 'user')";
+    $sql = "INSERT INTO users (name, email, password, role,company_name,phone_no) VALUES ('$name', '$email', '$password', 'user','$company_name','$phone_no')";
 
     if ($conn->query($sql) === TRUE) {
         header('Location: login.php');
@@ -32,6 +34,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h2>Signup</h2>
         <?php if (isset($error)) echo "<p class='error'>$error</p>"; ?>
         <input type="text" name="name" placeholder="Name" required>
+        <input type="text" name="company_name" placeholder="Company Name">
+        <input type="tel" name="phone_no" placeholder="Phone Number">
         <input type="email" name="email" placeholder="Email" required>
         <input type="password" name="password" placeholder="Password" required>
         <button type="submit">Signup</button>

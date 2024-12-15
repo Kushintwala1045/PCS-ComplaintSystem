@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($user['role'] === 'admin') {
             header('Location: dashboard.html');
         } elseif ($user['role'] === 'expert') {
-            header('Location: expert_dashboard.php');
+            header('Location: dashboard.php');
         } else {
             header('Location: index.html');
         }

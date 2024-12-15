@@ -1,6 +1,6 @@
 <?php
 $servername = "localhost";
-$username = "root"; // Use your MySQL username
+$username = "root"; 
 $password = "";     // Use your MySQL password
 $dbname = "complaints_db";
 
