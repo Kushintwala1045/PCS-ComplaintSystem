@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Complaints Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.3/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-white-100">
+<body class="bg-white-100 p-8">
+
     <div class="relative">
         <!-- Logo -->
         <img src="computer service.jpg" id="logo" alt="Logo" class="h-20 m-5 block" />
@@ -24,12 +24,11 @@
         </div>
     </div>
     
-    
-    <div class="container mx-auto my-8">
-        <h1 class="text-3xl font-bold text-center mb-6">Admin Dashboard</h1>
+    <div class="container">
+        <h1 class="text-3xl font-bold mb-6 text-center pl-80 ">Admin Dashboard</h1>
 
         <!-- Filter Form -->
-        <div class="bg-white p-4 rounded shadow-lg mb-6">
+        <div class="bg-white p-4 ml-60 items-center shadow-lg mb-6">
             <form id="filter-form" class="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-6">
                 <input type="text" id="filter-ticket-number" placeholder="Ticket Number" class="px-4 py-2 border rounded">
                 <select id="filter-priority" class="px-4 py-2 border rounded">
@@ -55,372 +54,217 @@
         </div>
 
         <!-- Tickets Table -->
-        <div class="overflow-x-auto bg-white rounded shadow-lg">
-            <table class="min-w-full border-collapse border border-gray-200 rounded-lg shadow-md">
-                <thead class="bg-gray-100">
-                    <tr>
-                        <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600 border-b">ID</th>
-                        <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600 border-b">Ticket Number</th>
-                        <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600 border-b">Customer Email</th>
-                        <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600 border-b">Customer Name</th>
-                        <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600 border-b">Phone Number</th>
-                        <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600 border-b">Complaint Description</th>
-                        <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600 border-b">Priority</th>
-                        <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600 border-b">Category</th>
-                        <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600 border-b">Created At</th>
-                        <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600 border-b">Status</th>
-                        <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600 border-b">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="tickets-body" class="divide-y divide-gray-200">
-                    <!-- Tickets will be dynamically loaded here -->
-                </tbody>
-            </table>
+        <table class="w-max m-4 bg-white border border-gray-300 rounded-lg shadow-md">
+            <thead>
+                <tr>
+                    <th class="px-6 py-2 border">ID</th>
+                    <th class="px-6 py-2 border">Ticket Number</th>
+                    <th class="px-6 py-2 border">Customer Email</th>
+                    <th class="px-6 py-2 border">Customer Name</th>
+                    <th class="px-6 py-2 border">Phone Number</th>
+                    <th class="px-6 py-2 border">Complaint Description</th>
+                    <th class="px-6 py-2 border">Priority</th>
+                    <th class="px-6 py-2 border">Category</th>
+                    <th class="px-6 py-2 border">Created At</th>
+                    <th class="px-6 py-2 border">Status</th>
+                    <th class="px-6 py-2 border">Assign</th>
+                    <th class="px-6 py-2 border">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="tickets-body">
+                <!-- Tickets will be rendered here -->
+            </tbody>
+        </table>
+
+        <!-- Modal for expert assignment -->
+        <div id="assignExpertModal" class="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center hidden">
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-xl ">Assign Expert</h2>
+                <label for="expertSelect" class="block text-sm mb-2">Choose Expert:</label>
+                <select id="expertSelect" class="border p-2 w-full">
+                    <!-- Experts will be populated here -->
+                </select>
+                <div>
+                    <button id="assignExpertButton" class="bg-blue-500 text-white px-4 py-2 rounded">Assign Expert</button>
+                    <button id="closeModalButton" class="ml-4 bg-gray-500 text-white px-4 py-2 rounded">Close</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Ticket Details Modal -->
-    <div id="ticket-details-modal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden justify-center items-center z-50">
-        <div class="bg-white p-6 rounded-lg max-w-md w-full mx-auto">
-            <h2 class="text-xl font-semibold mb-4">Ticket Details</h2>
-            <div id="ticket-details-content"></div>
-            <button onclick="closeModal()" class="mt-4 bg-red-500 text-white px-4 py-2 rounded">Close</button>
-        </div>
-    </div>
-    
     <script>
         function logout() {
             // Redirect to the logout page or handle logout logic
             window.location.href = 'logout.php';
         }
+        let allTickets = [];  // Store all tickets globally
 
-        // Fetch and render tickets logic
-        fetchTickets();
-        let tickets = []; // Store tickets data globally
+        // Fetch all tickets
+        function fetchTickets() {
+            fetch('fetch_tickets.php')
+                .then(response => response.json())
+                .then(data => {
+                    allTickets = data;  // Save the fetched tickets to the global variable
+                    renderTickets(data); // Render the tickets initially
+                })
+                .catch(error => console.error('Error fetching tickets:', error));
+        }
 
-// Fetch tickets from the database
-function fetchTickets() {
-    fetch('fetch_tickets.php')
-        .then(response => response.json())
-        .then(data => {
-            tickets = data;
-            renderTickets(tickets);
-        })
-        .catch(error => console.error('Error fetching tickets:', error));
-}
+        // Apply filters to the tickets
+        function applyFilters() {
+            const ticketNumber = document.getElementById('filter-ticket-number').value.trim();
+            const priority = document.getElementById('filter-priority').value;
+            const status = document.getElementById('filter-status').value;
+            const category = document.getElementById('filter-category').value.trim(); // Ensure trimming
+            const date = document.getElementById('filter-date').value;
 
-// Render tickets in the table
-function renderTickets(data) {
-const ticketsBody = document.getElementById('tickets-body');
-ticketsBody.innerHTML = ''; // Clear existing rows
+            console.log("Applying Filters:");
+            console.log("Ticket Number:", ticketNumber);
+            console.log("Priority:", priority);
+            console.log("Status:", status);
+            console.log("Category:", category);
+            console.log("Date:", date);
 
-if (data.length === 0) {
-ticketsBody.innerHTML = '<tr><td colspan="11" class="px-4 py-2 text-center text-gray-500">No tickets found</td></tr>';
-return;
-}
+            // Filter tickets based on the selected filters
+            const filteredTickets = allTickets.filter(ticket => {
+                return (
+                    (!ticketNumber || ticket.ticket_number.includes(ticketNumber)) &&
+                    (!priority || ticket.priority === priority) &&
+                    (!status || ticket.status === status) &&
+                    (!category || ticket.category.trim().toLowerCase() === category.toLowerCase()) && // Trim and case-insensitive check
+                    (!date || ticket.created_at.startsWith(date))
+                );
+            });
 
-data.forEach(ticket => {
-const row = `
-    <tr>
-        <td class="px-4 py-2">${ticket.id}</td>
-        <td class="px-4 py-2">${ticket.ticket_number}</td>
-        <td class="px-4 py-2">${ticket.customer_email}</td>
-        <td class="px-4 py-2">${ticket.customer_name}</td>
-        <td class="px-4 py-2">${ticket.phone_number || 'N/A'}</td>
-        <td class="px-4 py-2">${ticket.complaint_description}</td>
-        <td class="px-4 py-2">${ticket.priority}</td>
-        <td class="px-4 py-2">${ticket.category}</td>
-        <td class="px-4 py-2">${ticket.created_at}</td>
-        <td class="px-4 py-2">
-            <span class="px-2 py-1 text-sm rounded ${ticket.status === 'Open' ? 'bg-green-200 text-green-700' : 'bg-red-200 text-red-700'}">${ticket.status}</span>
-        </td>
-        <td class="px-4 py-2">
-            <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onclick="toggleStatus(${ticket.id}, '${ticket.status}')">
-                ${ticket.status === 'Open' ? 'Close' : 'Open'}
-            </button>
-            <button class="bg-gray-500 text-white p-1 px-50 py-2 rounded hover:bg-gray-600 ml-2" onclick="viewTicketDetails(${ticket.id})">
-                View Details
-            </button>
-        </td>
-    </tr>
-`;
-ticketsBody.innerHTML += row;
-});
-}
+            // Render the filtered tickets
+            renderTickets(filteredTickets);
+        }
 
+        // Render the tickets in the table
+        function renderTickets(data) {
+            const ticketsBody = document.getElementById('tickets-body');
+            ticketsBody.innerHTML = ''; // Clear existing rows
 
-// Apply filters to tickets
-function applyFilters() {
-const ticketNumber = document.getElementById('filter-ticket-number').value.trim();
-const priority = document.getElementById('filter-priority').value;
-const status = document.getElementById('filter-status').value;
-const category = document.getElementById('filter-category').value.trim(); // Ensure trimming
-const date = document.getElementById('filter-date').value;
-
-console.log("Applying Filters:");
-console.log("Ticket Number:", ticketNumber);
-console.log("Priority:", priority);
-console.log("Status:", status);
-console.log("Category:", category);
-console.log("Date:", date);
-
-const filteredTickets = tickets.filter(ticket => {
-return (
-    (!ticketNumber || ticket.ticket_number.includes(ticketNumber)) &&
-    (!priority || ticket.priority === priority) &&
-    (!status || ticket.status === status) &&
-    (!category || ticket.category.trim().toLowerCase() === category.toLowerCase()) && // Trim and case-insensitive check
-    (!date || ticket.created_at.startsWith(date))
-);
-});
-
-renderTickets(filteredTickets);
-}
-
-
-function toggleStatus(ticketId, currentStatus) {
-const newStatus = currentStatus === 'Open' ? 'Closed' : 'Open';
-
-fetch('fetch_tickets.php', {
-method: 'POST',
-headers: {
-    'Content-Type': 'application/x-www-form-urlencoded',
-},
-body: `ticket_id=${ticketId}&status=${newStatus}`,
-})
-.then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Update the status in tickets data
-                const ticket = tickets.find(t => t.id === ticketId);
-                if (ticket) ticket.status = newStatus;
-
-                // Reapply filters to refresh the table
-                applyFilters();
-            } else {
-                alert(data.message);
+            if (data.length === 0) {
+                ticketsBody.innerHTML = '<tr><td colspan="12" class="px-4 py-2 text-center text-gray-500">No tickets found</td></tr>';
+                return;
             }
-        })
-        .catch(error => console.error('Error updating status:', error));
-}
 
-
-// Function to view ticket details in a modal
-function viewTicketDetails(ticketId) {
-    fetch(`fetch_tickets.php?ticket_id=${ticketId}`)
-        .then(response => response.json())
-        .then(ticket => {
-            if (ticket) {
-                const detailsContent = `
-                    <p><strong>Ticket Number:</strong> ${ticket.ticket_number}</p>
-                    <p><strong>Customer Name:</strong> ${ticket.customer_name}</p>
-                    <p><strong>Customer Email:</strong> ${ticket.customer_email}</p>
-                    <p><strong>Phone Number:</strong> ${ticket.phone_number}</p>
-                    <p><strong>Complaint Description:</strong> ${ticket.complaint_description}</p>
-                    <p><strong>Priority:</strong> ${ticket.priority}</p>
-                    <p><strong>Category:</strong> ${ticket.category}</p>
-                    <p><strong>Status:</strong> ${ticket.status}</p>
-                    <p><strong>Created At:</strong> ${ticket.created_at}</p>
+            data.forEach(ticket => {
+                const row = `
+                    <tr>
+                        <td class="px-6 py-2">${ticket.id}</td>
+                        <td class="px-6 py-2">${ticket.ticket_number}</td>
+                        <td class="px-6 py-2">${ticket.customer_name}</td>
+                        <td class="px-6 py-2">${ticket.customer_email}</td>
+                        <td class="px-6 py-2">${ticket.phone_number || 'N/A'}</td>
+                        <td class="px-6 py-2">${ticket.complaint_description}</td>
+                        <td class="px-6 py-2">${ticket.priority}</td>
+                        <td class="px-6 py-2">${ticket.category}</td>
+                        <td class="px-6 py-2">${ticket.created_at}</td>
+                        <td class="px-2 py-2">
+                            <span class="px-2 py-1 text-sm rounded ${ticket.status === 'Open' ? 'bg-green-200 text-green-700' : 'bg-red-200 text-red-700'}">${ticket.status}</span>
+                        </td>
+                        <td class="px-2 py-2">
+                            <span class="text-sm">${ticket.expert_name || 'Not Assigned'}</span>
+                        </td>
+                        <td class="px-2 py-2">
+                            <button class="bg-blue-500 text-white px-2 py-2 rounded hover:bg-blue-600" onclick="toggleStatus(${ticket.id}, '${ticket.status}')">
+                                ${ticket.status === 'Open' ? 'Close' : 'Open'}
+                            </button>
+                            <button class="bg-green-500 text-white p-1 px-50 py-2 rounded hover:bg-green-600 ml-2" onclick="openAssignExpertModal(${ticket.id})">
+                                Assign Expert
+                            </button>
+                        </td>
+                    </tr>
                 `;
-                document.getElementById('ticket-details-content').innerHTML = detailsContent;
-                document.getElementById('ticket-details-modal').classList.remove('hidden');
+                ticketsBody.innerHTML += row;
+            });
+        }
+
+        // Toggle the status of the ticket
+        function toggleStatus(ticketId, status) {
+            const newStatus = status === 'Open' ? 'Closed' : 'Open';
+
+            fetch('fetch_tickets.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `ticket_id=${ticketId}&status=${newStatus}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Ticket status updated successfully');
+                    fetchTickets(); // Reload the tickets
+                } else {
+                    alert('Error updating ticket status');
+                }
+            });
+        }
+
+        // Open the expert assignment modal
+        function openAssignExpertModal(ticketId) {
+            selectedTicketId = ticketId;
+            document.getElementById('assignExpertModal').classList.remove('hidden');
+            fetchExperts();
+        }
+
+        // Fetch the list of available experts
+        function fetchExperts() {
+            fetch('fetch_tickets.php')
+                .then(response => response.json())
+                .then(data => {
+                    const expertSelect = document.getElementById('expertSelect');
+                    expertSelect.innerHTML = '<option value="">Select an Expert</option>';
+
+                    data.forEach(expert => {
+                        const option = document.createElement('option');
+                        option.value = expert.id;
+                        option.textContent = expert.name;
+                        expertSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching experts:', error));
+        }
+
+        // Assign the selected expert to the complaint
+        document.getElementById('assignExpertButton').onclick = function () {
+            const expertId = document.getElementById('expertSelect').value;
+
+            if (!expertId) {
+                alert('Please select an expert');
+                return;
             }
-        })
-        .catch(error => console.error('Error fetching ticket details:', error));
-}
 
-// Function to close the modal
-function closeModal() {
-    document.getElementById('ticket-details-modal').classList.add('hidden');
-}
-// Reload the page every 5 seconds (5000 milliseconds)
-setInterval(function() {
-location.reload();
-}, 5000);
+            fetch('fetch_tickets.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `ticket_id=${selectedTicketId}&expert_id=${expertId}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Expert assigned successfully');
+                    fetchTickets(); // Reload the tickets
+                    document.getElementById('assignExpertModal').classList.add('hidden');
+                } else {
+                    alert('Error assigning expert');
+                }
+            });
+        }
 
-// Initial fetch of tickets
-fetchTickets();
-</script>
+        // Close the modal
+        document.getElementById('closeModalButton').onclick = function () {
+            document.getElementById('assignExpertModal').classList.add('hidden');
+        }
 
+        // Initial fetch of tickets
+        fetchTickets();
+    </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-       
