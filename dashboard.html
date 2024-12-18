@@ -15,7 +15,7 @@
         <!-- Top-right section -->
         <div id="top-right" class="absolute top-5 right-5 flex items-center justify-end gap-3">
             <!-- Welcome Text -->
-            <span class="text-gray-700 font-medium">Welcome, User</span>
+            <span class="text-gray-700 font-medium">Welcome, Admin</span>
     
             <!-- Logout Button -->
             <button onclick="logout()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-red-600">
@@ -29,7 +29,7 @@
 
         <!-- Filter Form -->
         <div class="bg-white p-4 ml-60 items-center shadow-lg mb-6">
-            <form id="filter-form" class="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-6">
+            <form id="filter-form" class="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-7">
                 <input type="text" id="filter-ticket-number" placeholder="Ticket Number" class="px-4 py-2 border rounded">
                 <select id="filter-priority" class="px-4 py-2 border rounded">
                     <option value="">All Priorities</option>
@@ -50,11 +50,12 @@
                 </select>
                 <input type="date" id="filter-date" class="px-4 py-2 border rounded">
                 <button type="button" onclick="applyFilters()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Apply Filters</button>
+                <button type="button" onclick="goToAssignedTasks()" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Assigned Tasks</button>
             </form>
         </div>
 
         <!-- Tickets Table -->
-        <table class="w-max m-4 bg-white border border-gray-300 rounded-lg shadow-md">
+        <table class="w-max m-2 bg-white border border-gray-300 rounded-lg shadow-md">
             <thead>
                 <tr>
                     <th class="px-6 py-2 border">ID</th>
@@ -81,7 +82,7 @@
             <div class="bg-white p-6 rounded-lg shadow-lg">
                 <h2 class="text-xl ">Assign Expert</h2>
                 <label for="expertSelect" class="block text-sm mb-2">Choose Expert:</label>
-                <select id="expertSelect" class="border p-2 w-full">
+                <select id="expertSelect" class="border p-2 w-full mb-2">
                     <!-- Experts will be populated here -->
                 </select>
                 <div>
@@ -93,11 +94,16 @@
     </div>
 
     <script>
+        function goToAssignedTasks() {
+            window.location.href = 'assigned_tasks.php'; // Replace with the actual page URL
+        }
         function logout() {
             // Redirect to the logout page or handle logout logic
             window.location.href = 'logout.php';
         }
+
         let allTickets = [];  // Store all tickets globally
+        let selectedTicketId = null;  // To store the selected ticket ID when assigning expert
 
         // Fetch all tickets
         function fetchTickets() {
@@ -117,13 +123,6 @@
             const status = document.getElementById('filter-status').value;
             const category = document.getElementById('filter-category').value.trim(); // Ensure trimming
             const date = document.getElementById('filter-date').value;
-
-            console.log("Applying Filters:");
-            console.log("Ticket Number:", ticketNumber);
-            console.log("Priority:", priority);
-            console.log("Status:", status);
-            console.log("Category:", category);
-            console.log("Date:", date);
 
             // Filter tickets based on the selected filters
             const filteredTickets = allTickets.filter(ticket => {
@@ -152,11 +151,12 @@
 
             data.forEach(ticket => {
                 const row = `
-                    <tr>
+                    <tr id="ticket-${ticket.id}">
                         <td class="px-6 py-2">${ticket.id}</td>
                         <td class="px-6 py-2">${ticket.ticket_number}</td>
-                        <td class="px-6 py-2">${ticket.customer_name}</td>
                         <td class="px-6 py-2">${ticket.customer_email}</td>
+                        <td class="px-6 py-2">${ticket.customer_name}</td>
+                        
                         <td class="px-6 py-2">${ticket.phone_number || 'N/A'}</td>
                         <td class="px-6 py-2">${ticket.complaint_description}</td>
                         <td class="px-6 py-2">${ticket.priority}</td>
@@ -166,7 +166,7 @@
                             <span class="px-2 py-1 text-sm rounded ${ticket.status === 'Open' ? 'bg-green-200 text-green-700' : 'bg-red-200 text-red-700'}">${ticket.status}</span>
                         </td>
                         <td class="px-2 py-2">
-                            <span class="text-sm">${ticket.expert_name || 'Not Assigned'}</span>
+                            <span class="text-sm bg-yellow-500 p-2 rounded text-center " id="expert-${ticket.id}">${ticket.expert_name || 'Not Assigned'}</span>
                         </td>
                         <td class="px-2 py-2">
                             <button class="bg-blue-500 text-white px-2 py-2 rounded hover:bg-blue-600" onclick="toggleStatus(${ticket.id}, '${ticket.status}')">
@@ -204,20 +204,25 @@
             });
         }
 
-        // Open the expert assignment modal
+        // Open the modal to assign an expert
         function openAssignExpertModal(ticketId) {
-            selectedTicketId = ticketId;
+            selectedTicketId = ticketId; // Set the selected ticket ID
             document.getElementById('assignExpertModal').classList.remove('hidden');
-            fetchExperts();
+            fetchExperts(); // Load experts
         }
 
-        // Fetch the list of available experts
+        // Close the modal
+        document.getElementById('closeModalButton').onclick = function () {
+            document.getElementById('assignExpertModal').classList.add('hidden');
+        };
+
+        // Fetch the list of experts
         function fetchExperts() {
-            fetch('fetch_tickets.php')
+            fetch('fetch_experts.php')
                 .then(response => response.json())
                 .then(data => {
                     const expertSelect = document.getElementById('expertSelect');
-                    expertSelect.innerHTML = '<option value="">Select an Expert</option>';
+                    expertSelect.innerHTML = '<option value="">Select Expert</option>'; // Clear existing options
 
                     data.forEach(expert => {
                         const option = document.createElement('option');
@@ -229,7 +234,7 @@
                 .catch(error => console.error('Error fetching experts:', error));
         }
 
-        // Assign the selected expert to the complaint
+        // Assign the selected expert to the ticket
         document.getElementById('assignExpertButton').onclick = function () {
             const expertId = document.getElementById('expertSelect').value;
 
@@ -238,7 +243,7 @@
                 return;
             }
 
-            fetch('fetch_tickets.php', {
+            fetch('assign_expert.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -249,7 +254,9 @@
             .then(data => {
                 if (data.success) {
                     alert('Expert assigned successfully');
-                    fetchTickets(); // Reload the tickets
+                    
+                    // Update the ticket row in the table
+                    updateTicketRow(selectedTicketId, data.expert_name);
                     document.getElementById('assignExpertModal').classList.add('hidden');
                 } else {
                     alert('Error assigning expert');
@@ -257,14 +264,16 @@
             });
         }
 
-        // Close the modal
-        document.getElementById('closeModalButton').onclick = function () {
-            document.getElementById('assignExpertModal').classList.add('hidden');
+        // Function to update the assigned expert's name in the ticket row
+        function updateTicketRow(ticketId, expertName) {
+            const expertCell = document.getElementById(`expert-${ticketId}`); // Get the expert cell by ticket ID
+            if (expertCell) {
+                expertCell.textContent = expertName; // Update expert's name
+            }
         }
 
-        // Initial fetch of tickets
+        // Initial fetch of tickets when the page loads
         fetchTickets();
     </script>
-
 </body>
 </html>

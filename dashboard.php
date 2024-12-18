@@ -50,5 +50,11 @@ $user = $_SESSION['user'];
             <p class="text-lg text-gray-700">Choose an option from the sidebar to manage complaints.</p>
         </div>
     </div>
+    <script>
+        function logout() {
+            // Redirect to the logout page or handle logout logic
+            window.location.href = 'logout.php';
+        }
+</script>
 </body>
 </html>

@@ -11,15 +11,21 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Fetch all experts who are not assigned to any complaint
-$sql = "SELECT * FROM experts WHERE id NOT IN (SELECT expert_id FROM complaints WHERE status != 'Resolved')";
+// Fetch all experts from the database
+$sql = "SELECT id, name FROM experts";
 $result = $conn->query($sql);
 
-$experts = [];
-while ($row = $result->fetch_assoc()) {
-    $experts[] = $row;
+if ($result->num_rows > 0) {
+    $experts = [];
+    while ($row = $result->fetch_assoc()) {
+        $experts[] = $row;
+    }
+
+    // Return the experts as a JSON response
+    echo json_encode($experts);
+} else {
+    echo json_encode(['error' => 'No experts found']);
 }
 
-echo json_encode($experts); // Return the experts as a JSON response
 $conn->close();
 ?>
