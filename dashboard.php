@@ -63,7 +63,7 @@ $conn->close();
         <!-- Top-right section -->
         <div id="top-right" class="absolute top-5 right-5 flex items-center justify-end gap-3">
             <!-- Welcome Text -->
-            <span class="text-gray-700 font-medium">Welcome, expert</span>
+            <span class="text-gray-700 font-medium"></span>
     
             <!-- Logout Button -->
             <button onclick="logout()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-red-600">
