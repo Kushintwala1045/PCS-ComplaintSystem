@@ -50,7 +50,7 @@
                 </select>
                 <input type="date" id="filter-date" class="px-4 py-2 border rounded">
                 <button type="button" onclick="applyFilters()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Apply Filters</button>
-                <button type="button" onclick="goToAssignedTasks()" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Assigned Tasks</button>
+                <button type="button" onclick="goToAssignedTasks()" class="bg-yellow-100 text-black px-4 py-2 rounded hover:bg-yellow-500">Assigned Tasks</button>
             </form>
         </div>
 
@@ -166,13 +166,13 @@
                             <span class="px-2 py-1 text-sm rounded ${ticket.status === 'Open' ? 'bg-green-200 text-green-700' : 'bg-red-200 text-red-700'}">${ticket.status}</span>
                         </td>
                         <td class="px-2 py-2">
-                            <span class="text-sm bg-yellow-500 p-2 rounded text-center " id="expert-${ticket.id}">${ticket.expert_name || 'Not Assigned'}</span>
+                            <span class="text-sm bg-yellow-100 p-2 rounded text-center " id="expert-${ticket.id}">${ticket.expert_name || 'Not Assigned'}</span>
                         </td>
                         <td class="px-2 py-2">
                             <button class="bg-blue-500 text-white px-2 py-2 rounded hover:bg-blue-600" onclick="toggleStatus(${ticket.id}, '${ticket.status}')">
                                 ${ticket.status === 'Open' ? 'Close' : 'Open'}
                             </button>
-                            <button class="bg-green-500 text-white p-1 px-50 py-2 rounded hover:bg-green-600 ml-2" onclick="openAssignExpertModal(${ticket.id})">
+                            <button class="bg-blue-400 text-white p-1 px-50 py-2 rounded hover:bg-blue-600 ml-2" onclick="openAssignExpertModal(${ticket.id})">
                                 Assign Expert
                             </button>
                         </td>
